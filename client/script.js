@@ -27,6 +27,7 @@ const elements = {
     connectionStatus: document.getElementById('connectionStatus'),
     statusIndicator: document.getElementById('statusIndicator'),
     statusText: document.getElementById('statusText'),
+    statusLoader: document.querySelector('.status-loader'),
     userDisplayName: document.getElementById('userDisplayName'),
     displayRoomId: document.getElementById('displayRoomId'),
     roomName: document.getElementById('roomName'),
@@ -34,7 +35,11 @@ const elements = {
     
     // Other elements
     charCount: document.getElementById('charCount'),
-    toast: document.getElementById('toast')
+    toast: document.getElementById('toast'),
+    joinButton: document.querySelector('.join-button'),
+    joinButtonLoader: document.querySelector('.join-button .loader'),
+    joinButtonText: document.querySelector('.join-button .button-text'),
+    joinButtonIcon: document.querySelector('.join-button .button-icon')
 };
 
 // Application state
@@ -93,6 +98,9 @@ function handleLogin(e) {
         return;
     }
     
+    // Show loading state
+    showJoinButtonLoading(true);
+    
     // Store user data
     appState.userName = userName;
     appState.roomId = roomId;
@@ -148,6 +156,10 @@ function leaveRoom() {
     appState.isInRoom = false;
     appState.socket = null;
     
+    // Hide loading states
+    showJoinButtonLoading(false);
+    showStatusLoading(false);
+    
     // Clear form inputs
     elements.userNameInput.value = '';
     elements.roomIdInput.value = '';
@@ -162,13 +174,38 @@ function leaveRoom() {
     showToast('Left the room', 'success');
 }
 
+// Show/hide join button loading state
+function showJoinButtonLoading(show) {
+    if (show) {
+        elements.joinButton.classList.add('loading');
+        elements.joinButtonText.textContent = 'Connecting...';
+        elements.joinButton.disabled = true;
+    } else {
+        elements.joinButton.classList.remove('loading');
+        elements.joinButtonText.textContent = 'Join Room';
+        elements.joinButton.disabled = false;
+    }
+}
+
+// Show/hide status loading state
+function showStatusLoading(show) {
+    if (show) {
+        elements.statusIndicator.style.display = 'none';
+        elements.statusLoader.style.display = 'inline-flex';
+    } else {
+        elements.statusIndicator.style.display = 'block';
+        elements.statusLoader.style.display = 'none';
+    }
+}
+
 // Setup Socket.io event listeners
 function setupSocketListeners() {
     // Connection established
     appState.socket.on('connect', () => {
         console.log('Connected to server');
         appState.isConnected = true;
-        updateConnectionStatus('connected', 'Connected');
+        showStatusLoading(true);
+        updateConnectionStatus('connected', 'Joining room...');
         
         // Join the room
         appState.socket.emit('join-room', {
@@ -181,14 +218,19 @@ function setupSocketListeners() {
     appState.socket.on('room-joined', (data) => {
         console.log('Joined room:', data);
         appState.isInRoom = true;
+        showJoinButtonLoading(false);
+        showStatusLoading(false);
         showChatInterface();
         enableMessageInput();
+        updateConnectionStatus('connected', 'Connected');
         showToast(`Joined room ${appState.roomId}`, 'success');
     });
 
     // Room join failed
     appState.socket.on('room-join-failed', (data) => {
         console.error('Failed to join room:', data.message);
+        showJoinButtonLoading(false);
+        showStatusLoading(false);
         showToast(data.message || 'Failed to join room', 'error');
         appState.socket.disconnect();
         showLoginForm();
@@ -198,6 +240,8 @@ function setupSocketListeners() {
     appState.socket.on('connect_error', (error) => {
         console.error('Connection error:', error);
         appState.isConnected = false;
+        showJoinButtonLoading(false);
+        showStatusLoading(false);
         updateConnectionStatus('disconnected', 'Connection failed');
         showToast('Failed to connect to server', 'error');
         showLoginForm();
@@ -208,6 +252,8 @@ function setupSocketListeners() {
         console.log('Disconnected from server:', reason);
         appState.isConnected = false;
         appState.isInRoom = false;
+        showJoinButtonLoading(false);
+        showStatusLoading(false);
         updateConnectionStatus('disconnected', 'Disconnected');
         disableMessageInput();
         

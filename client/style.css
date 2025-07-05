@@ -1,3 +1,55 @@
+/* From Uiverse.io by doniaskima */ 
+.loader {
+  display: inline-flex;
+  gap: 10px;
+}
+
+.loader:before,
+.loader:after {
+  content: "";
+  height: 20px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(farthest-side,#000 95%,#0000) 35% 35%/6px 6px no-repeat
+    #fff;
+  transform: scaleX(var(--s,1)) rotate(0deg);
+  animation: l6 1s infinite linear;
+}
+
+.loader:after {
+  --s: -1;
+  animation-delay: -0.1s;
+}
+
+@keyframes l6 {
+  100% {
+    transform: scaleX(var(--s,1)) rotate(360deg);
+  }
+}
+
+/* Status loader - smaller version for connection status */
+.status-loader {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.status-loader:before,
+.status-loader:after {
+  content: "";
+  height: 12px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(farthest-side,#fff 95%,#0000) 35% 35%/4px 4px no-repeat
+    rgba(255, 255, 255, 0.3);
+  transform: scaleX(var(--s,1)) rotate(0deg);
+  animation: l6 1s infinite linear;
+}
+
+.status-loader:after {
+  --s: -1;
+  animation-delay: -0.1s;
+}
+
 /* Reset and base styles */
 * {
     margin: 0;
@@ -113,9 +165,10 @@ body {
     gap: 0.5rem;
     transition: all 0.2s ease;
     margin-top: 1rem;
+    position: relative;
 }
 
-.join-button:hover {
+.join-button:hover:not(:disabled) {
     transform: translateY(-1px);
     box-shadow: 0 6px 20px rgba(79, 172, 254, 0.3);
 }
@@ -130,6 +183,23 @@ body {
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+}
+
+.join-button.loading {
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.join-button.loading .button-text {
+    opacity: 0.7;
+}
+
+.join-button.loading .button-icon {
+    display: none;
+}
+
+.join-button.loading .loader {
+    display: inline-flex !important;
 }
 
 /* Chat Interface */

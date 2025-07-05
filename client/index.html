@@ -44,8 +44,9 @@
                     </div>
                     
                     <button type="submit" class="join-button">
-                        <span>Join Room</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <span class="button-text">Join Room</span>
+                        <div class="loader" style="display: none;"></div>
+                        <svg class="button-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M5 12L20 12M15 17L20 12L15 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </button>
@@ -66,6 +67,7 @@
                 <div class="header-actions">
                     <div class="connection-status" id="connectionStatus">
                         <span class="status-indicator" id="statusIndicator"></span>
+                        <div class="status-loader" style="display: none;"></div>
                         <span id="statusText">Connecting...</span>
                     </div>
                     <button class="leave-room-btn" id="leaveRoomBtn" title="Leave Room">
